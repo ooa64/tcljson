@@ -23,6 +23,9 @@ libtcljson.so: $(OBJs)
 
 $(OBJs): Makefile
 
+test:
+	tclsh json.test
+
 clean:
 	rm -f $(TARGETS) *.o core $(VERSION).tgz
 
