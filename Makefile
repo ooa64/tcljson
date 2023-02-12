@@ -14,6 +14,9 @@ OBJs=tcl-json.o jsmn/jsmn.o
 
 all: $(TARGETS)
 
+tcl-json.c: jim-json.c jim-json.sed
+	sed -f jim-json.sed < jim-json.c > tcl-json.c
+
 libtcljson.a: $(OBJs)
 	rm -f $@
 	ar cr $@ $^
