@@ -4,8 +4,6 @@ Ported from JIM TCL http://jim.tcl.tk/
 
 `json::encode`
 
-The Tcl -> JSON encoder is part of the optional 'json' package.
-
 json::encode 'value' ?schema?
 
 Encode a Tcl value as JSON according to the schema (defaults to +'str'+). The following schema types are supported:
@@ -34,10 +32,7 @@ The following are examples:
     . json::encode {a 1 b 3.0 c hello d null} {obj c str * num}
     { "a":1, "b":3.0, "c":"hello", "d":null }
 
-
 `json::decode`
-
-The JSON -> Tcl decoder is part of the optional 'json' package.
 
 json::decode  -index? ?-null 'string'? ?-schema? 'json-string'
 
