@@ -1,7 +1,7 @@
 TCLROOT?=/usr
 TCLVER?=8.6
 
-VERSION = tcljson-1.0
+VERSION = tcljson1.0
 TCLFLAGS = -I$(TCLROOT)/include -I$(TCLROOT)/include/tcl
 #DEBUGFLAGS = -ggdb
 CFLAGS = -fPIC $(TCLFLAGS) $(DEBUGFLAGS)
@@ -9,6 +9,7 @@ CFLAGS = -fPIC $(TCLFLAGS) $(DEBUGFLAGS)
 TCLLIB = -L$(TCLROOT)/lib -ltcl$(TCLVER) -lm -ldl
 
 TARGETS = libtcljson.a libtcljson.so
+SCRIPTS = jsonencode.tcl pkgIndex.tcl
 
 OBJs=tcl-json.o jsmn/jsmn.o
 
@@ -26,7 +27,11 @@ libtcljson.so: $(OBJs)
 
 $(OBJs): Makefile
 
-test:
+install: all
+	mkdir $(TCLROOT)/lib/$(VERSION)
+	cp $(TARGETS) $(SCRIPTS) $(TCLROOT)/lib/$(VERSION)/
+
+test: all
 	tclsh json.test
 
 clean:

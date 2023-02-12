@@ -3,8 +3,8 @@
 #needs cmd json::decode json
 #needs cmd json::encode json
 
-load ./libtcljson.so
-source ./jsonencode.tcl 
+lappend auto_path .
+package require tcljson
 
 package require tcltest
 namespace import tcltest::*
