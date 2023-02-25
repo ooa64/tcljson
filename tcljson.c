@@ -22,9 +22,11 @@ Tcljson_Init(Tcl_Interp* interp)
 {
     Tcl_CmdInfo info;
 
+#ifdef USE_TCL_STUBS
     if (Tcl_InitStubs(interp, "8.1", 0) == NULL) {
         return TCL_ERROR;
     }
+#endif
 
     if (Tcl_PkgProvideEx(interp, PACKAGE_NAME, PACKAGE_VERSION, NULL) != TCL_OK) {
         return TCL_ERROR;
