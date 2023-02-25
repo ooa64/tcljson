@@ -1,0 +1,77 @@
+PACKAGE_NAME="tcljson"
+PACKAGE_VERSION="1.0"
+VER = 10
+
+SCRIPTS = jsonencode.tcl pkgIndex.tcl
+OBJS=tcljson.obj jsmn.obj
+
+!ifndef TCLROOT
+TCLROOT = c:\activetcl
+!endif
+
+!ifndef TCLVER
+TCLVER = 86
+!endif
+
+!ifndef TCLSUFF
+TCLSUFF = ""
+!endif
+
+!ifndef STATIC_BUILD
+STATIC_BUILD = 0
+!endif
+
+#DEFINES = -D_CRT_SECURE_NO_WARNINGS -DTCL_THREADS=1 -DUSE_THREAD_ALLOC=1 -DPACKAGE_NAME=\"tcljson\" -DPACKAGE_VERSION=\"1.0\"
+DEFINES = $(DEFINES) -D_CRT_SECURE_NO_WARNINGS -DTCL_THREADS=1 -DUSE_THREAD_ALLOC=1 -DPACKAGE_NAME=\"tcljson\" -DPACKAGE_VERSION=\"1.0\"
+INCLUDES = $(INCLUDES) -I"$(TCLROOT)\include" -I.
+CFLAGS = $(CFLAGS) -O2 -Ot -Oi -fp:strict -Gs -GS -GL -DNDEBUG -MD
+LFLAGS = $(LFLAGS) -release -opt:ref -opt:icf,3 -ltcg -subsystem:console -stack:2300000
+LIBS = $(LIBS) -libpath:"$(TCLROOT)\lib"
+
+!if $(STATIC_BUILD) != 0
+TARGET  = tcljson$(VER)s.lib
+DEFINES	= $(DEFINES) -DSTATIC_BUILD
+#CFLAGS	= $(CFLAGS) -Zl
+LIBS    = $(LIBS) tcl$(TCLVER)s$(TCLSUFF).lib
+!else
+TARGET  = tcljson$(VER).dll
+DEFINES	= $(DEFINES) -DUSE_TCL_STUBS
+CFLAGS	= $(CFLAGS) -LD
+LIBS    = $(LIBS) tclstub$(TCLVER).lib tcl$(TCLVER)$(TCLSUFF).lib
+!endif
+#LIBS = $(LIBS) advapi32.lib user32.lib gdi32.lib winspool.lib
+
+TCLSH = $(TCLROOT)\bin\tclsh$(TCLVER)$(TCLSUFF).exe
+
+all: $(TARGET)
+
+clean:
+	@-del *.obj
+	@-del *.exp
+        @-del $(TARGET)
+
+test: all $(SCRIPTS)
+	$(TCLSH) json.test
+
+install: all $(SCRIPTS)
+        -mkdir $(TCLROOT)\lib\$(PACKAGE_NAME)$(PACKAGE_VERSION)
+        echo y | xcopy /i $(TARGET) $(TCLROOT)\lib\$(PACKAGE_NAME)$(PACKAGE_VERSION)
+        echo y | xcopy /i pkgIndex.tcl $(TCLROOT)\lib\$(PACKAGE_NAME)$(PACKAGE_VERSION)
+
+tcljson$(VER)s.lib: $(OBJS)
+	lib -nologo -ltcg -out:$@ $(OBJS)
+
+tcljson$(VER).dll: $(OBJS)
+	link -nologo -dll -out:$@ $(LFLAGS) $(LIBS) $(OBJS)
+
+tcljson.obj: tcljson.c tcl-json.c
+	cl -nologo -c $(DEFINES) $(INCLUDES) $(CFLAGS) tcljson.c
+
+jsmn.obj: jsmn/jsmn.c jsmn/jsmn.h
+	cl -nologo -c $(DEFINES) $(INCLUDES) $(CFLAGS) jsmn/jsmn.c
+
+tcl-json.c: jim-json.c jim-json.sed
+	sed -f jim-json.sed < jim-json.c > tcl-json.c
+
+pkgIndex.tcl:
+        echo package ifneeded tcljson 1.0 "[list load [file join $$dir tcljson$(VER).dll]]; [list source [file join $$dir jsonencode.tcl]];" > pkgIndex.tcl
